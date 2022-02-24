@@ -18,7 +18,7 @@ source src/proxy.sh          # proxySetup()
 source src/ui.sh             # logo() DisplayHelp() center() clearLines() progress()
 source src/tools.sh          # getLock() freeLock() SWCheck()
 source src/dns.sh            # generateDNSQuery()
-source src/requestsEngine.sh # generateUserAgent() stop() filter() Engine()
+source src/requestsEngine.sh # generateUserAgent() stop() filter() Engine() GetS3File()
 
 main() {
     # path to file containg base urls
@@ -33,6 +33,8 @@ main() {
     local DNSArray=""
     # DNSArray size
     local DNSArraySize=0
+	# Use S3 for file source
+	local UseS3File=0
 
     # flag parsing
     # loop until the input variable has '-' as the first charapter
@@ -62,7 +64,7 @@ main() {
 	    --url-list )
 		# moving one step forward the first variable pointer
 		shift
-		# checking the falg has an arg and that the arg
+		# checking the flag has an arg and that the arg
 		# is not an empty string
 		if [[ "$1" != "" ]] && [[ ! "$1" =~ ^- ]]; then
 		    # the arg expected for --url-list
@@ -145,12 +147,14 @@ main() {
 		;;
 		-s3 | --s3file )
 		shift
-		if [[ -n "$ACCESSKEY" ]] && [[ -n "$SECRETKEY" ]]; then
-		    aws s3 sync ${1} ./partyloud.conf ;
+		if [[ "$1" == "" ]] || [[ "$1"  =~ ^- ]]; then
+			bold "[!] looks like you forgot the s3 bucket"
+			bold "    please add a valid s3 URI -s3"
+			bold "    or remove the flag if you don't need it"
 		else
-			bold "[!] It looks like you didn't set your access key"
-			bold "or secret key in your environment.  Set and try again"
-			exit
+			export S3File=${1}
+			GetS3File
+			local UseS3File=1
 		fi
 		;;
 	    -h | --help )
@@ -169,6 +173,7 @@ main() {
     export BLOCKLIST
     export DNSList
     export DNSArraySize
+	export UseS3File
 
     echo "[+] Using $UrlList as URL List"
     echo "[+] Using $BLOCKLIST as Blocklist"
@@ -199,7 +204,7 @@ main() {
 	    trap stop EXIT
 
 	    local CurrentUrl=""
-	    local AltUrl="https://hackernoon.com"
+	    local AltUrl="https://www.portcosmar.com"
 
 	    local ThreadCount="0"
 
@@ -213,6 +218,7 @@ main() {
 		    sleep 0.4
 		    AltUrl="${CurrentUrl}"
 		    ThreadCount="$(( ThreadCount + 1))"
+
 		fi
 	    done
 

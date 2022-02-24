@@ -90,6 +90,16 @@ stop() {
     done
 }
 
+GetS3File() {
+	if [[ -n "$AWS_ACCESS_KEY_ID" ]] && [[ -n "$AWS_SECRET_ACCESS_KEY" ]]; then
+        aws s3 cp ${S3File} .
+    else
+        bold "[!] It looks like you didn't set your access key"
+        bold "or secret key in your environment.  Set and try again"
+        exit
+    fi
+}
+
 filter() {
     local Urls="${1}"
     if [[ "${Urls}" != "" ]]; then
@@ -107,7 +117,7 @@ Engine() {
     local Res=""
     local Size=0
     local -r UrlRegex='(https|http)://[A-Za-z0-9_|.]*(/([^\.\"?:;,#\<\>=% ]*(.html)?)*)'
-
+    local i=0
     while true; do
         getLock
         local Cmd=( "curl"
@@ -135,6 +145,15 @@ Engine() {
         else
             tput cuf "$(( 70 - ${#Url} ))"
         fi
+
+        # update s3 bucket every 25 loops
+		if [[ UseS3File=1 ]]; then
+			if (( i % 250 == 0)); then
+				bold "[!] Updating partyloud.conf from s3 bucket"
+				GetS3File
+			fi
+		i=$((i+1))  
+		fi
 
         echo " ${Res:(-5)}"
         #echo "${Res}" -- DEBUG
