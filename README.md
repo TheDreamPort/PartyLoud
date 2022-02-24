@@ -1,3 +1,19 @@
+# MISI Fork 
+
+Docker build with `docker build -t partyloud .`
+
+Docker run with `docker run -ti -e AWS_ACCESS_KEY_ID=XXXXXXXXXXXXX -e AWS_SECRET_ACCESS_KEY=XXXXXXXXXXXXXXX partyloud /bin/bash ./partyloud.sh -s3 s3://your-partyloud-s3-bucket/partyloud.conf`
+
+
+That's all there is.  Original README below.
+
+
+
+
+
+
+
+
 <h1 align="center">
 Partyloud
 </h1>
