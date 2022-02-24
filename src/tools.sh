@@ -25,6 +25,7 @@ SWCheck() {
 		  "mkdir"
 		  "printf"
 		  "bc"
+		  "aws"
 		)
     for COMMAND in "${SW[@]}"; do
 	if [[ $TEST == true ]]; then

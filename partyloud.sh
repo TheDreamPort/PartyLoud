@@ -143,6 +143,16 @@ main() {
 		    exit
 		fi
 		;;
+		-s3 | --s3file )
+		shift
+		if [[ -n "$ACCESSKEY" ]] && [[ -n "$SECRETKEY" ]]; then
+		    aws s3 sync ${1} ./partyloud.conf ;
+		else
+			bold "[!] It looks like you didn't set your access key"
+			bold "or secret key in your environment.  Set and try again"
+			exit
+		fi
+		;;
 	    -h | --help )
 		DisplayHelp
 		exit 0
