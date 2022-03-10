@@ -147,10 +147,13 @@ Engine() {
         fi
 
         # update s3 bucket every 25 loops
-		if [[ UseS3File=1 ]]; then
+        echo "UseS3File is ${UseS3File}"
+		if [[ UseS3File==1 ]]; then
 			if (( i % 250 == 0)); then
 				bold "[!] Updating partyloud.conf from s3 bucket"
 				GetS3File
+                UrlList="$(< "paryloud.conf")"
+                export UrlList
 			fi
 		i=$((i+1))  
 		fi
